@@ -1,0 +1,24 @@
+### Advanced Features
+
+#### Custom Actions
+You can specify which CRUD actions to generate using the `--actions` flag:
+
+```bash
+node ace dreamer posts --actions=index,show
+```
+
+Available actions:
+- `index` (List all)
+- `show` (View single)
+- `store` (Create)
+- `update` (Edit)
+- `destroy` (Delete)
+
+#### Nested Resources
+Dreamer supports nested resource generation for related entities. This is particularly useful for parent-child relationships:
+
+```bash
+node ace dreamer posts/comments
+```
+
+> **Note**: Currently, dreamer doesn't have the capacity to determine relationships.

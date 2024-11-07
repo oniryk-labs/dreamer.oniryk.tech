@@ -1,0 +1,122 @@
+## CRUD Operations
+The package provides pre-built CRUD operations that can be easily integrated into your controllers. All operations take a model as the first argument and offer some options depending on your functionality.
+
+This is a basic example of a complete RESTful controller:
+
+```typescript
+import Post from '#models/post'
+import { index, show, store, update, destroy } from '@oniryk/dreamer/extensions/crud'
+import { validatePostCreate, validatePostUpdate } from '#validators/post'
+import csv from '@oniryk/dreamer-csv'
+
+export default class PostsController {
+  public index = index(Post)
+  public show = show(Post)
+  public store = store(Post, validatePostCreate)
+  public update = update(Post, validatePostUpdate)
+  public destroy = destroy(Post)
+}
+```
+
+#### index
+The `index` method provides a flexible way to list and filter records.
+
+```typescript
+import { index } from '@oniryk/dreamer/extensions/crud'
+import csv from '@oniryk/dreamer-csv'
+import { validatePostIndex } from '#validators/post'
+
+export default class PostsController {
+  public index = index(Post, {
+    perPage: 20,
+    formats: [csv()],
+    scope: 'highlights',
+    validator: validatePostIndex
+  })
+}
+```
+
+| Option      | Type               | Description                                                  |
+|-------------|--------------------|--------------------------------------------------------------|
+| `perPage`   | number             | (optional) Number of records per page                        |
+| `formats`   | OutputFormatFn[]   | (optional) Array of formatters to enable alternative output formats. When a format is added, the user can request the content in a format by passing `f` or `format` in the query string:<br/><br/>Ex: `GET /posts?f=csv` |
+| `scope`     | string \| function | (optional) Name of model scope to apply or function compatible with `withScopes` method of Lucid query builder<br/><br/>Ex: `(scopes) => scopes.highlights()` |
+| `validator` | VineValidator      | (optional) Vine validation schema for query parameters       |
+
+#### show
+The `show` method provides a way to retrieve a single record. When using UUID extension, it automatically handles UUID-based lookups.
+
+```typescript
+import Post from '#models/post'
+import { show } from '@oniryk/dreamer/extensions/crud'
+
+export default class PostsController {
+  public show = show(Post)
+}
+```
+
+| Option  | Type      | Description           |
+|---------|-----------|-----------------------|
+| `model` | BaseModel | The Lucid model class |
+
+#### store
+The `store` method handles record creation with validation and optional data mutation.
+
+```typescript
+import Post from '#models/post'
+import { store } from '@oniryk/dreamer/extensions/crud'
+import { validatePostUpdate } from '#validators/post'
+
+export default class PostsController {
+  public store = store(Post, validatePostUpdate, {
+    mutate (row, payload) {
+      row.title = payload.title.toLowerCase()
+    }
+  })
+}
+```
+
+| Parameter        | Type                                                | Description                                      |
+|------------------|-----------------------------------------------------|--------------------------------------------------|
+| `model`          | BaseModel                                           | The Lucid model class                            |
+| `validator`      | VineValidator                                       | Vine validator schema for input validation       |
+| `options.mutate` | `(row: Model, payload: any) => void \| Promise<void>` | (optional) Callback to modify data before saving |
+
+#### update
+The `update` method handles record updates with validation and optional data mutation.
+
+```typescript
+import Post from '#models/post'
+import { update } from '@oniryk/dreamer/extensions/crud'
+import { validatePostUpdate } from '#validators/post'
+
+export default class PostsController {
+  public update = update(Post, validatePostUpdate, {
+    mutate (row, payload) {
+      row.title = payload.title.toLowerCase()
+    }
+  })
+}
+```
+
+| Parameter        | Type                                                | Description                                      |
+|------------------|-----------------------------------------------------|--------------------------------------------------|
+| `model`          | BaseModel                                           | The Lucid model class                            |
+| `validator`      | VineValidator                                       | Vine validator schema for input validation       |
+| `options.mutate` | `(row: Model, payload: any) => void \| Promise<void>` | (optional) Callback to modify data before saving |
+
+#### destroy
+The `destroy` method handles record deletion with proper error handling.
+
+```typescript
+import Post from '#models/post'
+import { destroy } from '@oniryk/dreamer/extensions/crud'
+
+export default class PostsController {
+  public destroy = destroy(Post)
+}
+```
+
+| Parameter | Type      | Description           |
+|-----------|-----------|-----------------------|
+| `model`   | BaseModel | The Lucid model class |

@@ -1,0 +1,133 @@
+## JSON Response Formatters
+
+
+JSON response formatters provide a consistent way to structure your API responses. They help maintain a uniform pattern for success and error across all your routes.
+
+#### success
+The `success` method formats successful responses, supporting both simple and paginated data. It automatically structures the response with an "ok" status and includes the provided data, along with pagination metadata when applicable.
+
+**Example 1: Simple List Response**
+```typescript
+import Post from '#models/post'
+import { HttpContext } from '@adonisjs/core/http'
+import { success } from '@oniryk/dreamer/extensions/http'
+
+export default class PostsController {
+  public async list({ response }: HttpContext) {
+    const posts = await Post.all()
+    success(response, posts)
+  }
+}
+
+// Response:
+{
+  "status": "ok",
+  "data": [ ... ]
+}
+```
+
+**Example 2: Paginated Response**
+```typescript
+export default class PostsController {
+  public async paginated({ response, request }: HttpContext) {
+    const page = request.input('page', 1);
+    const limit = 20;
+    const posts = await Post.paginate(page, limit)
+    success(response, posts)
+  }
+}
+
+// Response:
+{
+  "status": "ok",
+  "data": [ ... ],
+  "meta": {
+    "currentPage": 1,
+    "firstPage": 1,
+    "firstPageUrl": "/?page=1",
+    "lastPage": 1,
+    "lastPageUrl": "/?page=1",
+    "nextPageUrl": null,
+    "perPage": 10,
+    "previousPageUrl": null,
+    "total": 6
+  }
+}
+```
+
+#### error
+The `error` method standardizes error handling in the API, providing a consistent structure for different types of errors. It can handle validation errors, custom errors, and standard system exceptions.
+
+**Example 1: Validation Error Handling**
+```typescript
+import Post from '#models/post'
+import { HttpContext } from '@adonisjs/core/http'
+import { error } from '@oniryk/dreamer/extensions/http'
+import { validatePostCreate } from '#validators/post'
+
+export default class PostsController {
+  public async store({ response, request }: HttpContext) {
+    try {
+      await request.validate(validatePostCreate)
+    } catch (e) {
+      error(response, e);
+    }
+  }
+}
+
+// Response:
+{
+  "status": "error",
+  "error": {
+    "code": "VALIDATION_ERROR",
+    "message": "Validation failure",
+    "issues": [
+       {
+         "field": "title",
+         "message": "The title field must be defined",
+         "rule": "required"
+       }
+    ]
+  }
+}
+```
+
+**Example 2: Standard Error Response**
+```typescript
+export default class PostsController {
+  public async check ({ response, request }: HttpContext) {
+    if (1 === 1) {
+      error(response, new Error('invalid option'));
+    }
+  }
+}
+
+// Response:
+{
+  "status": "error",
+  "error": {
+    "code": "Error",
+    "message": "invalid option"
+  }
+}
+```
+
+**Example 3: Custom Error Response**
+```typescript
+export default class PostsController {
+  public async check2 ({ response, request }: HttpContext) {
+    if (1 === 1) {
+      error(response, { code: 'ERROR_CODE', message: 'invalid option'});
+    }
+  }
+}
+
+// Response:
+{
+  "status": "error",
+  "error": {
+    "code": "ERROR_CODE",
+    "message": "invalid option"
+  }
+}
+```

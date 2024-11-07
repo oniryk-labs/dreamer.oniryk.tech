@@ -1,0 +1,55 @@
+## Lucid Extensions
+
+### UUID Support
+
+The `withUUID` extension adds UUID support to your models. It's based on the concept of using UUID as a key to expose externally while keeping an autoincrementing integer as the primary key.
+
+```typescript
+import { BaseModel } from '@adonisjs/lucid/orm'
+import { compose } from '@adonisjs/core/helpers'
+import { withUUID } from '@oniryk/dreamer/extensions/lucid'
+
+export default class Post extends compose(BaseModel, withUUID()) {
+  //...
+}
+```
+
+**What's changed under the hood?**
+
+- `id` column keeps existing as primary key to speed up relationship queries
+- `uuid` column is defined and autogenerates UUIDs for new records
+- changes the default behavior of `find` and `findOrFail` methods to use the `uuid` column instead of `id` when making queries
+
+### Soft-delete Support
+
+The `withSoftDelete` extension implements soft delete functionality in your models:
+* Adds a `deletedAt` timestamp column to your model
+* Automatically filters out soft-deleted records from queries
+
+```typescript
+import { BaseModel } from '@adonisjs/lucid/orm'
+import { compose } from '@adonisjs/core/helpers'
+import { withSoftDelete } from '@oniryk/dreamer/extensions/lucid'
+
+export default class Post extends compose(BaseModel, withSoftDelete()) {
+  // ...
+}
+```
+
+### Searchable Fields
+
+The searchable fields feature allows you to define which fields can be searched in your models:
+* Define exact match fields (e.g., 'author_id')
+* Define partial match fields using the 'like:' prefix (e.g., 'like:title')
+* Automatically handles search queries in the CRUD index operation
+* Supports multiple search criteria in a single query
+
+```typescript
+import { BaseModel } from '@adonisjs/lucid/orm'
+import { compose } from '@adonisjs/core/helpers'
+import { withSoftDelete } from '@oniryk/dreamer/extensions/lucid'
+
+export default class Post extends BaseModel {
+  public static searchable = ['author_id', 'like:title']
+}
+```

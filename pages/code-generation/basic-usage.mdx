@@ -1,0 +1,49 @@
+## Code generation
+
+Dreamer has a powerful code generation tool that automates the creation of complete CRUD operations from a single migration file. This streamlines your development process by generating all necessary components with minimal configuration.
+
+### Basic Usage
+To generate a new CRUD, use the following command:
+
+```bash
+node ace dreamer [entity]
+```
+
+Replace `[entity]` with your desired entity name. For example, to create a CRUD for blog posts:
+
+```bash
+node ace dreamer posts
+```
+
+#### Workflow
+1. The command creates a migration file
+2. You'll be prompted to edit the file and define your entity fields
+3. After saving, Dreamer automatically generates all CRUD components
+
+#### Generated Components
+Dreamer creates a complete set of files for your entity:
+
+```text
+app/
+├── models/
+│   └── post.ts
+├── controllers/
+│   └── posts_controller.ts
+├── validators/
+│   └── post.ts
+├── routes/
+│   └── posts.ts
+└── docs/  # If Bruno is enabled
+    └── posts/
+        └── index.bru
+        └── show.bru
+        └── store.bru
+        └── update.bru
+        └── destroy.bru
+```
+
+- **Model**: Lucid model with all field definitions
+- **Controller**: RESTful actions implementation
+- **Validators**: Input validation rules for store and update actions
+- **Routes**: API endpoint definitions
+- **API Documentation**: Automatically generated if Bruno is enabled in your configuration
